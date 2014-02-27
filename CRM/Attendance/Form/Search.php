@@ -150,7 +150,8 @@ class CRM_Attendance_Form_Search extends CRM_Core_Form
 	 function get_contribution_type($conttypeid)
 	 {
 		 	$str_attresult = '';
-			$select_query = "SELECT name from civicrm_contribution_type where id = '$conttypeid' limit 1";
+		 	// By OSSeed change civicrm_contribution_type to civicrm_financial_type
+			$select_query = "SELECT name from civicrm_financial_type where id = '$conttypeid' limit 1";
 			$select_query_result = &CRM_Core_DAO::executeQuery($select_query);
 			while ( $select_query_result->fetch()) 
 			{
@@ -233,6 +234,53 @@ class CRM_Attendance_Form_Search extends CRM_Core_Form
         $this->_context = CRM_Utils_Request::retrieve( 'context', 'String', $this, false, 'search' );
         $this->assign( "context", $this->_context );
 		
+        /*
+         * Changes made by OSSeed for search by date range 
+         */ 
+
+        $contactIDS = array();
+		$andclause =' ';
+        if(!empty($_REQUEST['total_attendance_date_relative']) || !empty($_REQUEST['total_attendance_date_low']) || !empty($_REQUEST['total_attendance_date_high'])) {   
+		  $requestvalues = CRM_Contact_BAO_Query::convertFormValues($_REQUEST); 
+		  if(!isset($_REQUEST['total_attendance_date_low']) || !isset($_REQUEST['total_attendance_date_high'])) {
+		    $start_dt = date('Y-m-d',strtotime($requestvalues[3][2]));
+		    $end_dt = date('Y-m-d',strtotime($requestvalues[5][2]));
+		  } else {
+              $start_dt = date('Y-m-d',strtotime($requestvalues[3][2]));
+		      $end_dt = date('Y-m-d',strtotime($requestvalues[4][2]));
+		    }
+		  $attend_query = "SELECT id,contact_id,attendance,total_class_days,total_attended_days,persentage FROM civicrm_course_attendance";
+		  $attend_query_result = &CRM_Core_DAO::executeQuery($attend_query);
+
+		  while($attend_query_result->fetch()) {
+		    $date_array = array();
+		    $flag = 0;
+            $date_array = explode('|',$attend_query_result->attendance);
+            if(date('Y-m-d',strtotime(substr(current($date_array),0,10))) >= date('Y-m-d',strtotime($start_dt)) && date('Y-m-d',strtotime(substr(end($date_array),0,10))) <= date('Y-m-d',strtotime($end_dt))) {
+           	  $flag = 1;
+            } 
+            if($flag == 1) {
+           	  $contactIDS[$attend_query_result->contact_id] = $attend_query_result->contact_id;
+            } 
+		  }
+	    }  
+	    if(isset($_REQUEST['view_partial_attendance']) && $_REQUEST['view_partial_attendance'] == 'View Partial Attendance Report' && !empty($_REQUEST['group'])) {
+	      if(!empty($contactIDS)) {
+            $andclause = "and civicrm_course_attendance.contact_id IN (".implode(',',$contactIDS).") order by sort_name";
+          } else {
+          	$andclause = "order by sort_name";
+          }		
+	    }
+	    if(isset($_REQUEST['view_attendance']) && $_REQUEST['view_attendance'] == 'View Attendance Report' && !empty($_REQUEST['group'])) {
+	      if(!empty($contactIDS)) {
+            $andclause = "and civicrm_course_attendance.contact_id IN (".implode(',',$contactIDS).") order by sort_name";
+          } else {
+          	$andclause = "order by sort_name";
+          }			
+	    }
+        
+
+
 		if((isset($_REQUEST['outstanding_amount']) && $_REQUEST['outstanding_amount'] == 'Outstanding Amount') || (isset($_GET['outstanding_amount']) && $_GET['outstanding_amount'] == 'Outstanding Amount') )
 			{
 				$pagination = new pagination;
@@ -291,18 +339,20 @@ class CRM_Attendance_Form_Search extends CRM_Core_Form
 				 }
 				 $additional_str = " join civicrm_group_contact on (civicrm_group_contact.contact_id = civicrm_membership.contact_id) join civicrm_group on (civicrm_group_contact.group_id = civicrm_group.id)  where 1  AND civicrm_group_contact.status != 'Removed'";
 				 $select_query = "SELECT DISTINCT CONCAT(civicrm_contact.first_name , ' ', civicrm_contact.last_name) as name, civicrm_contact.id as id, civicrm_group.title FROM civicrm_contact left join civicrm_membership on (civicrm_membership.contact_id = civicrm_contact.id) ".$additional_str." ".$and_str."";
+
 				 //echo "<li>".$select_query;
 				 $select_query_result = &CRM_Core_DAO::executeQuery($select_query);
 				 $i = 0;
 				 while ( $select_query_result->fetch()) {
 					//checking paid or not
 					$net_amount_status = false;
-					$select_query_netamount_check = "SELECT contact_id , net_amount, non_deductible_amount,total_amount, contribution_type_id FROM  civicrm_contribution as cc  where cc.contact_id = '$select_query_result->id' AND cc.net_amount > 0 AND cc.net_amount != 'NULL'";
+					// By OSSeed change civicrm_contribution_type to civicrm_financial_type
+					$select_query_netamount_check = "SELECT contact_id , net_amount, non_deductible_amount,total_amount, financial_type_id FROM  civicrm_contribution as cc  where cc.contact_id = '$select_query_result->id' AND cc.net_amount > 0 AND cc.net_amount != 'NULL'";
 					$select_query_netamount_check_result = &CRM_Core_DAO::executeQuery($select_query_netamount_check);
 					while ($select_query_netamount_check_result->fetch()) 
 						{
 						//$net_amount_status = true;
-						$data1[$i]['contribution_type'] = $this->get_contribution_type($select_query_netamount_check_result->contribution_type_id);
+						$data1[$i]['contribution_type'] = $this->get_contribution_type($select_query_netamount_check_result->financial_type_id);
 						$data1[$i]['name'] = $select_query_result->name;
 						$data1[$i]['id'] = $select_query_result->id;
 						$data1[$i]['net_amount'] = $select_query_netamount_check_result->net_amount;
@@ -382,12 +432,12 @@ class CRM_Attendance_Form_Search extends CRM_Core_Form
 			}
 		
 		if(isset($_REQUEST['view_partial_attendance']) && $_REQUEST['view_partial_attendance'] == 'View Partial Attendance Report' && !empty($_REQUEST['group']))
-			{
-				 $group_partial = $_REQUEST['group'];
-				 $this->assign( 'from', 'from partial data');
-				$select_query_partial = "SELECT sort_name, total_class_days, total_attended_days, persentage, civicrm_course_attendance.id, contact_id  FROM  civicrm_course_attendance join civicrm_contact on (civicrm_contact.id = civicrm_course_attendance.contact_id) where groupid = '$group_partial' and  persentage < 100 order by sort_name";
-				$select_query_partial_detail_result = &CRM_Core_DAO::executeQuery($select_query_partial);
-				$partial_count = 1;
+		  {    
+			  $group_partial = $_REQUEST['group'];
+			  $this->assign( 'from', 'from partial data');
+			  $select_query_partial = "SELECT sort_name, total_class_days, total_attended_days, persentage, civicrm_course_attendance.id, contact_id  FROM  civicrm_course_attendance join civicrm_contact on (civicrm_contact.id = civicrm_course_attendance.contact_id) where groupid = '$group_partial' and  persentage < 100 ".$andclause;
+			  $select_query_partial_detail_result = &CRM_Core_DAO::executeQuery($select_query_partial);
+			  $partial_count = 1;
 				while ($select_query_partial_detail_result->fetch()) 
 				{
 					$partial_data_array["$partial_count"]["total_class_days"] = $select_query_partial_detail_result->total_class_days;
@@ -404,7 +454,7 @@ class CRM_Attendance_Form_Search extends CRM_Core_Form
 				  $this->assign( 'partial_data_array', $partial_data_array);
 				  $this->assign( 'partial_data_array_status', 'Partial data');
 				  $this->assign( 'partial_row_count', $partial_count-1);
-				   $this->assign( 'hide_group_value', $group_partial);
+				  $this->assign( 'hide_group_value', $group_partial);
 				}
 				else
 				{
@@ -415,7 +465,7 @@ class CRM_Attendance_Form_Search extends CRM_Core_Form
 			{
 				$group_partial = $_REQUEST['group'];
 				$this->assign( 'from', 'from view data');
-				$select_query_partial = "SELECT sort_name, total_class_days, total_attended_days, persentage, civicrm_course_attendance.id, contact_id  FROM  civicrm_course_attendance join civicrm_contact on (civicrm_contact.id = civicrm_course_attendance.contact_id) where groupid = '$group_partial' order by sort_name";
+				$select_query_partial = "SELECT sort_name, total_class_days, total_attended_days, persentage, civicrm_course_attendance.id, contact_id  FROM  civicrm_course_attendance join civicrm_contact on (civicrm_contact.id = civicrm_course_attendance.contact_id) where groupid = '$group_partial' " . $andclause;
 				$select_query_partial_detail_result = &CRM_Core_DAO::executeQuery($select_query_partial);
 				$partial_count = 1;
 				while ($select_query_partial_detail_result->fetch()) 
@@ -547,6 +597,7 @@ class CRM_Attendance_Form_Search extends CRM_Core_Form
 			$aryDates = $this->createDateRangeArray($strDateFrom,$strDateTo);
 			$countColumn = count($aryDates);
 			$select_query = "SELECT DISTINCT CONCAT(civicrm_contact.first_name , ' ', civicrm_contact.last_name) as name, civicrm_contact.id as id FROM civicrm_contact left join civicrm_membership on (civicrm_membership.contact_id = civicrm_contact.id) join civicrm_group_contact on (civicrm_group_contact.contact_id = civicrm_membership.contact_id)  where civicrm_membership.start_date <= '$member_start_date_low' AND civicrm_membership.end_date >= '$member_end_date_low'  AND civicrm_group_contact.group_id = '$group_id'  AND civicrm_group_contact.status != 'Removed'";
+			
 			$select_query_result = &CRM_Core_DAO::executeQuery($select_query);
 			$data = array();
 			$i = 0;
@@ -621,8 +672,9 @@ class CRM_Attendance_Form_Search extends CRM_Core_Form
 			$strDateTo = $member_end_date_low;
 			$aryDates = $this->createDateRangeArray($strDateFrom,$strDateTo);
 			$countColumn = count($aryDates);
-			$select_query = "SELECT DISTINCT CONCAT(civicrm_contact.first_name , ' ', civicrm_contact.last_name) as name, civicrm_contact.id as id FROM civicrm_contact left join civicrm_membership on (civicrm_membership.contact_id = civicrm_contact.id) join civicrm_group_contact on (civicrm_group_contact.contact_id = civicrm_membership.contact_id)  where civicrm_membership.start_date <= '$member_start_date_low' AND civicrm_membership.end_date >= '$member_end_date_low'  AND civicrm_group_contact.group_id = '$group_id'  AND civicrm_group_contact.status != 'Removed'";
-			
+
+			// By OSSeed change the >= and <= for membership date
+			$select_query = "SELECT DISTINCT CONCAT(civicrm_contact.first_name , ' ', civicrm_contact.last_name) as name, civicrm_contact.id as id FROM civicrm_contact left join civicrm_membership on (civicrm_membership.contact_id = civicrm_contact.id) join civicrm_group_contact on (civicrm_group_contact.contact_id = civicrm_membership.contact_id)  where civicrm_membership.start_date >= '$member_start_date_low' AND civicrm_membership.end_date <= '$member_end_date_low'  AND civicrm_group_contact.group_id = '$group_id'  AND civicrm_group_contact.status != 'Removed'";
 			$select_query_result = &CRM_Core_DAO::executeQuery($select_query);
 			$data1 = array();
 			$selectbox_values_arr = array();

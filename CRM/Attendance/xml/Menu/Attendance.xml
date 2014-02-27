@@ -8,5 +8,11 @@
      <weight>700</weight>
      <component>CiviAttendance</component>
   </item>
-  
+  <item>
+     <path>civicrm/contact/view/attendance</path>
+     <path_arguments>force=1,cid=%%cid%%</path_arguments>
+     <title>Attendance</title>
+     <page_callback>CRM_Attendance_Page_Tab</page_callback>
+     <weight>2</weight>
+  </item>
 </menu>

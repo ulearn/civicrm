@@ -430,7 +430,9 @@ class CRM_Attendance_BAO_Query
 
         //$form->addElement( 'checkbox', 'member_test' , ts( 'Find Test Memberships?' ) );
         //$form->addElement( 'checkbox', 'member_pay_later', ts( 'Find Pay Later Memberships?' ) );
-
+        
+        // By OSSeed added date field to search by Date range
+        CRM_Core_Form_Date::buildDateRange($form, 'total_attendance_date', 1, '_low', '_high', ts('From'), FALSE);
         // add all the custom  searchable fields
         require_once 'CRM/Custom/Form/CustomData.php';
         $extends      = array( 'Membership' );
