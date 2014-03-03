@@ -34,7 +34,7 @@
  * $Id$
  *
  */
-class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
+class CRM_Report_Form_Contribute_NationalityDetail extends CRM_Report_Form {
   protected $_addressField = FALSE;
 
   protected $_emailField = FALSE;
