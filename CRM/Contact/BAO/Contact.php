@@ -2365,7 +2365,13 @@ AND       civicrm_openid.is_primary = 1";
           'context' => 'activity',
         );
         return CRM_Activity_BAO_Activity::getActivitiesCount($input);
-
+      // Added case for attendance
+      case 'attendance':
+        $select = "SELECT count(*) FROM civicrm_course_attendance ";
+        $where  = "WHERE civicrm_course_attendance.contact_id = {$contactId} ";
+        $query = $select . $where;
+        return CRM_Core_DAO::singleValueQuery($query);
+             
       default:
         $custom = explode('_', $component);
         if ($custom['0'] = 'custom') {

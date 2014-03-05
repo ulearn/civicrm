@@ -54,7 +54,14 @@ function checkgroup()
     </td>
    
 </tr>
-
+{* By OSSeed added field and label for date range *}
+<tr>
+  <td colspan="3"><label>{ts}Attendance Dates{/ts}</label></td>
+</tr>
+<tr> 
+     {include file="CRM/Core/DateRange.tpl" fieldName="total_attendance_date" from='_low' to='_high'}
+</tr> 
+{* Ends by OSSeed*}
 <tr> 
     <td colspan="3"> 
      {$form.member_start_date_low.label} 
@@ -70,6 +77,7 @@ function checkgroup()
     </td>
    
 </tr> 
+
 {if $membershipGroupTree}
 <tr>
     <td colspan="5">

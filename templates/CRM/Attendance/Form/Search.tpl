@@ -94,7 +94,7 @@
                      <th scope="col">
                       Teacher
                     </th>
-             		 <th scope="col">
+                 <th scope="col">
                    <input type="text" value="{$register_data_array.teacher}" name="teacher" id="teacher" />
                 </th>
               
@@ -108,7 +108,7 @@
                 </th>
           </tr>
  </table>
-<table class="selector" summary="Search results listings." style="position: relative;">
+<table class="selector vertical" summary="Search results listings." style="position: relative;">
   <thead class="sticky">
    
     <tr>
@@ -123,28 +123,38 @@
               
           </tr>
   </thead>
-  <tbody>
-  	{assign var=i value=0 }
-  	 {foreach from=$mydata item=rowdata}
-  			
-        <tr title="Click contact name to view a summary. Right-click anywhere in the row for an actions menu." class="odd-row" id="rowid1851">
+  <tbody id="test">
+    {assign var=i value=0 }
+    {* Added variable for tabindex *}
+    {assign var=colcount value=$countRow}
+    {assign var=cn value=16}
+     {foreach from=$mydata item=rowdata}
+        
+        <tr title="Click contact name to view a summary. Right-click anywhere in the row for an actions menu." class="{cycle values="odd-row,even-row"}" id="rowid1851">
                
-              <td><a href="/civicrm/contact/view?reset=1&amp;cid={$rowdata.id}">{$rowdata.name}</a></td>
+              <td title="Name" ><a href="/civicrm/contact/view?reset=1&amp;cid={$rowdata.id}">{$rowdata.name}</a></td>
                {assign var=k value=$i}
-           		 <span style="display:none">{$i++}</span>
+               <span style="display:none">{$i++}</span>
+               <span style="display:none">{$cn++}</span>
                   <input type="hidden" name="contact_{$i}" id="contact_{$i}" value="{$rowdata.id}" />
               {assign var=j value=0 }
+              {*variable for tabindex*}
+              {assign var=cm value=$cn}
+              
               {foreach from=$aryDates item=arrdate}
-              		
+                  
                     {assign var=m value=$j}
                    
-             	 <span style="display:none">{$j++}</span>
-              	
+               <span style="display:none">{$j++}</span>
+                
                 <!--<td><select name="select_attendance_{$i}_{$j}" id = "select_attendance_{$i}_{$j}" ><option  {if $selectbox_values_arr[$k][$m] EQ ''} selected="selected" {/if} value="">[Select]</option><option  {if $selectbox_values_arr[$k][$m] EQ $arrdate|cat:'_Y'} selected="selected" {/if} value="{$arrdate}_Y">Yes</option><option  {if $selectbox_values_arr[$k][$m] EQ $arrdate|cat:'_N'} selected="selected" {/if} value="{$arrdate}_N">No</option><option  {if $selectbox_values_arr[$k][$m] EQ $arrdate|cat:"_F"} selected="selected" {/if} value="{$arrdate}_F">Free</option><option  {if $selectbox_values_arr[$k][$m] EQ $arrdate|cat:"_PA"} selected="selected" {/if} value="{$arrdate}_PA">Partial</option></select></td>  -->  
                 
-                <td><input type="hidden" name="select_attendance_{$i}_{$j}" id = "select_attendance_{$i}_{$j}" value= "{$selectbox_values_arr[$k][$m]}" size="1" /><input type="text" name="select_attendance_nothide_{$i}_{$j}" id = "select_attendance_nothide_{$i}_{$j}" value="{$selectbox_values_arr_to_show[$k][$m]}" size="1" /></td>  
-                       
-              {/foreach}               
+                <td><input type="hidden" name="select_attendance_{$i}_{$j}" id = "select_attendance_{$i}_{$j}"  value= "{$selectbox_values_arr[$k][$m]}" size="1" /><input type="text" name="select_attendance_nothide_{$i}_{$j}" id = "select_attendance_nothide_{$i}_{$j}" tabindex="{$cm}" value="{$selectbox_values_arr_to_show[$k][$m]}" size="1" /></td>  
+                {*variable for tabindex*}
+                 <span style="display:none">{assign var=cm value=$cm+$countRow}</span>  
+              {/foreach}
+              {*variable for tabindex*}
+              <span style="display:none">{assign var=cm value=0}</span>               
          </tr>
       {/foreach}       
         
@@ -154,7 +164,7 @@
     
     <table >
        <tr>
-     		   <td >
+           <td >
                  <input type="hidden" name="hide_group_id" id="hide_group_id" value="{$data_group_id}" />
                 <input type="hidden" name="countColumn" id="countColumn" value="{$countColumn}" />
                  <input type="hidden" name="countRow" id="countRow" value="{$countRow}" />
@@ -202,29 +212,29 @@
       <th scope="col">Non deductable amount (&euro;)</th>
       <th scope="col">Net Amount (Amount outstanding due) (&euro;)</th>
        <th scope="col">Group Name</th>
-	   <th scope="col">Contribution Type</th>
+     <th scope="col">Contribution Type</th>
     </tr>
   </thead>
   <tbody>
   
    {foreach from=$outstandingdata item=dataitem}
-                  <tr class="odd-row">
-                    <td scope="col">
+                  <tr class="{cycle values="odd-row,even-row"}">
+                    <td title="Name" scope="col">
                         <a href="/civicrm/contact/view?reset=1&amp;cid={$dataitem.id}">{$dataitem.name} </a> 
                     </td>
-                     <td scope="col">
+                     <td title="Total paid amount" scope="col">
                         {$dataitem.total_amount}    
                     </td>
-                     <td scope="col">
+                     <td title="Non deductable amount" scope="col">
                         {$dataitem.non_deductible_amount}    
                     </td>
-                     <td scope="col">
+                     <td title="Net Amount (Amount outstanding due)" scope="col">
                         {$dataitem.net_amount}    
                     </td>
-                     <td scope="col">
+                     <td title="Group Name" scope="col">
                         {$dataitem.group_name}    
                     </td>
-					 <td scope="col">
+           <td title="Contribution Type" scope="col">
                         {$dataitem.contribution_type}    
                     </td>
                     
@@ -291,28 +301,28 @@
   <tbody>
   {assign var=partialcount value=0}
    {foreach from=$partial_data_array item=partialdate}
-                  <tr class="odd-row">
-                  	 {if $from EQ 'from partial data'}  
+                  <tr class="{cycle values="odd-row,even-row"}">
+                     {if $from EQ 'from partial data'}  
                       <span style="display:none">{$partialcount++}</span>
                      <td scope="col"><input type="checkbox" name="selectbox_contact_{$partialcount}" id="selectbox_contact_{$partialcount}" value="{$partialdate.id}"/></td>
                      {/if}
-                    <td scope="col">
+                    <td title="Name" scope="col">
                         <a href="/civicrm/contact/view?reset=1&amp;cid={$partialdate.contact_id}">{$partialdate.sort_name} </a> 
                     </td>
-                     <td scope="col">
+                     <td title="Total class days" scope="col">
                         {$partialdate.total_class_days}    
                     </td>
-                     <td scope="col">
+                     <td title="Total attended days" scope="col">
                         {$partialdate.total_attended_days}    
                     </td>
-                     <td scope="col">
+                     <td title="Percentage" scope="col">
                         {$partialdate.persentage}    
                     </td>
                   </tr>
     {/foreach}  
     {if $from EQ 'from partial data'}  
-     <tr class="odd-row">
-                  	 <td scope="col" colspan="5">
+     <tr class="{cycle values="odd-row,even-row"}">
+                     <td scope="col" colspan="5">
                       <input type="hidden" name="force_to_100_count" id="force_to_100_count" value="{$partial_row_count}" />
                       <input type="hidden" name="hide_group" id="hide_group" value="{$hide_group_value}" />
                      <input type="submit" name="force_to_100" id="force_to_100" value="Force To 100 Percent" onclick="return check_select_all('{$partial_row_count}');"/></td>
@@ -327,30 +337,30 @@
 <script type="text/javascript" >
 function check_select_all(countrow)
 {
-	var i;
-	for (i = 1; i <= countrow; i++)
-	{
-	  if (document.getElementById("selectbox_contact_"+i).checked == true)
-	  {
-		  return true;
-	  }
+  var i;
+  for (i = 1; i <= countrow; i++)
+  {
+    if (document.getElementById("selectbox_contact_"+i).checked == true)
+    {
+      return true;
     }
-	alert("Please check atleast one checkbox");
-	return false;
+    }
+  alert("Please check atleast one checkbox");
+  return false;
 }
 function toggel_select_all(countrow)
 {
-	var i;
-	for (i = 1; i <= countrow; i++)
-	{
-	  if (document.getElementById("selectbox_contact_"+i).checked == true)
-	  {
-		  document.getElementById("selectbox_contact_"+i).checked = false;
-	  }
-	  else
-	  {
-		  document.getElementById("selectbox_contact_"+i).checked = true;
-	  }
+  var i;
+  for (i = 1; i <= countrow; i++)
+  {
+    if (document.getElementById("selectbox_contact_"+i).checked == true)
+    {
+      document.getElementById("selectbox_contact_"+i).checked = false;
+    }
+    else
+    {
+      document.getElementById("selectbox_contact_"+i).checked = true;
+    }
     }
 }
 function days_between(date1, date2) {
@@ -370,133 +380,135 @@ function days_between(date1, date2) {
 }
 function checkSearchvalidation()
 {
-		var start_day;
-		var end_day;
-		var date1;
-		var date2;
-		var diff;
-		var start_day_array;
-		var end_day_array;
-		start_day = document.getElementById("member_start_date_low").value;
-		end_day = document.getElementById("member_end_date_low").value;
-		start_day_array = start_day.split("-");
-		end_day_array = end_day.split("-");
-		date1 = new Date(start_day_array[2]*1,start_day_array[1]*1,start_day_array[0]*1);
-		date2 = new Date(end_day_array[2]*1,end_day_array[1]*1,end_day_array[0]*1);
-		diff = days_between(date1, date2);
-		diff = diff+1;
-		if (document.getElementById("group").value == '')
-		{
-			alert("Please select group");
-			return false;
-		}
-		if (start_day == '')
-		{
-			alert("Please select start date");
-			return false;
-		}
-		if (end_day == '')
-		{
-			alert("Please select end date");
-			return false;
-		}
-		if (diff > 10)
-		{
-			alert("Search date range exceeded more than 10 days");
-			return false;
-		}
-		return true;
-	
+    var start_day;
+    var end_day;
+    var date1;
+    var date2;
+    var diff;
+    var start_day_array;
+    var end_day_array;
+    start_day = document.getElementById("member_start_date_low").value;
+    end_day = document.getElementById("member_end_date_low").value;
+    start_day_array = start_day.split("-");
+    end_day_array = end_day.split("-");
+    date1 = new Date(start_day_array[2]*1,start_day_array[1]*1,start_day_array[0]*1);
+    date2 = new Date(end_day_array[2]*1,end_day_array[1]*1,end_day_array[0]*1);
+    diff = days_between(date1, date2);
+    diff = diff+1;
+    if (document.getElementById("group").value == '')
+    {
+      alert("Please select group");
+      return false;
+    }
+    if (start_day == '')
+    {
+      alert("Please select start date");
+      return false;
+    }
+    if (end_day == '')
+    {
+      alert("Please select end date");
+      return false;
+    }
+    if (diff > 10)
+    {
+      alert("Search date range exceeded more than 10 days");
+      return false;
+    }
+    return true;
+  
 }
 
 function outstandingcheck()
 {
-	start_day = document.getElementById("member_start_date_low").value;
-	end_day = document.getElementById("member_end_date_low").value;
-	if(start_day != '' && end_day == '')
-	{
-		alert('Plese select end date');
-		return false;
-	}
-	if(start_day == '' && end_day != '')
-	{
-		alert('Plese select start date');
-		return false;
-	}
-	return true;
+  start_day = document.getElementById("member_start_date_low").value;
+  end_day = document.getElementById("member_end_date_low").value;
+  if(start_day != '' && end_day == '')
+  {
+    alert('Plese select end date');
+    return false;
+  }
+  if(start_day == '' && end_day != '')
+  {
+    alert('Plese select start date');
+    return false;
+  }
+  return true;
 }
 
 
 function checkvalidation(row, col)
-	{
-		var i,k,m;
-		var j;
-		var start_day;
-		var end_day;
-		var date1;
-		var date2;
-		var diff;
-		var start_day_array;
-		var end_day_array;
-		var nothideval; 
-		var hideval;
-		var tosave_indatabase;
-		start_day = document.getElementById("member_start_date_low").value;
-		end_day = document.getElementById("member_end_date_low").value;
-		start_day_array = start_day.split("-");
-		end_day_array = end_day.split("-");
-		date1 = new Date(start_day_array[2]*1,start_day_array[1]*1,start_day_array[0]*1);
-		date2 = new Date(end_day_array[2]*1,end_day_array[1]*1,end_day_array[0]*1);
-		diff = days_between(date1, date2);
-		diff = diff+1;
-		if (diff > 10)
-		{
-			alert("Search date range exceeded more than 10 days");
-			return false;
-		}
-		if(document.getElementById("time").value == '')
-				{
-					alert("Please enter the time value");
-					return false;
-					
-				}
-		if(document.getElementById("classroom").value == '')
-				{
-					alert("Please enter the classroom value");
-					return false;
-					
-				}
-				
-		for(i=1; i <= row; i++)
-		{
-		  for(j=1; j <= col; j++)
-			{
-				if(document.getElementById("select_attendance_nothide_"+i+"_"+j).value == '')
-				{
-					alert("Please enter the attendance value");
-					return false;
-					
-				}
-				if(document.getElementById("select_attendance_nothide_"+i+"_"+j).value > 1.0)
-				{
-					alert("Please enter only 1 for yes, 0 for no and free, 0.1 to 0.9 for partial attendance value");
-					return false;
-					
-				}
-				if(isNaN(document.getElementById("select_attendance_nothide_"+i+"_"+j).value))
-				{
-					alert("Please enter only 1 for yes, 0 for no and free, 0.1 to 0.9 for partial attendance value");
-					return false;
-					
-				}
-				nothideval = document.getElementById("select_attendance_nothide_"+i+"_"+j).value;
-				hideval = document.getElementById("select_attendance_"+i+"_"+j).value;
-				tosave_indatabase = hideval+"_"+nothideval;
-				document.getElementById("select_attendance_"+i+"_"+j).value = tosave_indatabase;
-			}
-		}
-		return true;
-	}
+  {
+    var i,k,m;
+    var j;
+    var start_day;
+    var end_day;
+    var date1;
+    var date2;
+    var diff;
+    var start_day_array;
+    var end_day_array;
+    var nothideval; 
+    var hideval;
+    var tosave_indatabase;
+    start_day = document.getElementById("member_start_date_low").value;
+    end_day = document.getElementById("member_end_date_low").value;
+    start_day_array = start_day.split("-");
+    end_day_array = end_day.split("-");
+    date1 = new Date(start_day_array[2]*1,start_day_array[1]*1,start_day_array[0]*1);
+    date2 = new Date(end_day_array[2]*1,end_day_array[1]*1,end_day_array[0]*1);
+    diff = days_between(date1, date2);
+    diff = diff+1;
+    if (diff > 10)
+    {
+      alert("Search date range exceeded more than 10 days");
+      return false;
+    }
+    if(document.getElementById("time").value == '')
+        {
+          alert("Please enter the time value");
+          return false;
+          
+        }
+    if(document.getElementById("classroom").value == '')
+        {
+          alert("Please enter the classroom value");
+          return false;
+          
+        }
+        
+    for(i=1; i <= row; i++)
+    {
+      for(j=1; j <= col; j++)
+      {
+        if(document.getElementById("select_attendance_nothide_"+i+"_"+j).value == '')
+        {
+          alert("Please enter the attendance value");
+          return false;
+          
+        }
+        if(document.getElementById("select_attendance_nothide_"+i+"_"+j).value > 1.0)
+        {
+          alert("Please enter only 1 for yes, 0 for no and free, 0.1 to 0.9 for partial attendance value");
+          return false;
+          
+        }
+        if(isNaN(document.getElementById("select_attendance_nothide_"+i+"_"+j).value))
+        {
+          alert("Please enter only 1 for yes, 0 for no and free, 0.1 to 0.9 for partial attendance value");
+          return false;
+          
+        }
+        nothideval = document.getElementById("select_attendance_nothide_"+i+"_"+j).value;
+        hideval = document.getElementById("select_attendance_"+i+"_"+j).value;
+        tosave_indatabase = hideval+"_"+nothideval;
+        document.getElementById("select_attendance_"+i+"_"+j).value = tosave_indatabase;
+      }
+    }
+    return true;
+  }
+
+  
 </script>
 <style>
 .numbers {
@@ -505,15 +517,15 @@ function checkvalidation(row, col)
    }
 .numbers a.selected{
     font-weight: bold;
-	font-size:15px;
-	color:#94AB3F;
+  font-size:15px;
+  color:#94AB3F;
    }
 </style>
 {/literal}
 {if $smarty.request.group != ''}
 {literal}
 <script type="text/javascript" >
-	document.getElementById("group").value = {/literal}{$smarty.get.group}{literal};
+  document.getElementById("group").value = {/literal}{$smarty.get.group}{literal};
 </script>
 {/literal}
 {/if}
