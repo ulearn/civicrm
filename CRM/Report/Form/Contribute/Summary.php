@@ -42,7 +42,13 @@ class CRM_Report_Form_Contribute_Summary extends CRM_Report_Form {
     'barChart' => 'Bar Chart',
     'pieChart' => 'Pie Chart',
   );
-  protected $_customGroupExtends = array('Contribution');
+  /*
+    protected $_customGroupExtends = array('Contribution');
+  */
+
+  
+  	  protected $_customGroupExtends = array(
+    'Contact', 'Individual', 'Household', 'Organization','Contribution');
   protected $_customGroupGroupBy = TRUE; 
 
   public $_drilldownReport = array('contribute/detail' => 'Link to Detail Report');
