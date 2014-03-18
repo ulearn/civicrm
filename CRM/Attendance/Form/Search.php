@@ -674,7 +674,7 @@ class CRM_Attendance_Form_Search extends CRM_Core_Form
 			$countColumn = count($aryDates);
 
 			// By OSSeed change the >= and <= for membership date
-			$select_query = "SELECT DISTINCT CONCAT(civicrm_contact.first_name , ' ', civicrm_contact.last_name) as name, civicrm_contact.id as id FROM civicrm_contact left join civicrm_membership on (civicrm_membership.contact_id = civicrm_contact.id) join civicrm_group_contact on (civicrm_group_contact.contact_id = civicrm_membership.contact_id)  where civicrm_membership.start_date >= '$member_start_date_low' AND civicrm_membership.end_date <= '$member_end_date_low'  AND civicrm_group_contact.group_id = '$group_id'  AND civicrm_group_contact.status != 'Removed'";
+			$select_query = "SELECT DISTINCT CONCAT(civicrm_contact.first_name , ' ', civicrm_contact.last_name) as name, civicrm_contact.id as id FROM civicrm_contact left join civicrm_membership on (civicrm_membership.contact_id = civicrm_contact.id) join civicrm_group_contact on (civicrm_group_contact.contact_id = civicrm_membership.contact_id)  where civicrm_membership.start_date <= '$member_start_date_low' AND civicrm_membership.end_date >= '$member_end_date_low'  AND civicrm_group_contact.group_id = '$group_id'  AND civicrm_group_contact.status != 'Removed'";
 			$select_query_result = &CRM_Core_DAO::executeQuery($select_query);
 			$data1 = array();
 			$selectbox_values_arr = array();
